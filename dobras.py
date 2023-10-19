@@ -13,13 +13,11 @@ c[0] = 297
 l[0] = 210
 e[0] = 0.1
 
-begin_fold_in_bigger_size = input('Começar dobrando no maior lado? (s/n) ') == 's'
-
-size_choice = {True: 1, False: 0}
+# Sempre dobrando do maior lado disponível
 
 # Processo iterativo
 for i in range(n_max-1):
-    if (i + size_choice[begin_fold_in_bigger_size]) % 2 == 0:
+    if c[i] > l[i]:
         c[i+1] = c[i]/2 - e[i]
         l[i+1] = l[i]
     else:
