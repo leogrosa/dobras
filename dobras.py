@@ -22,10 +22,11 @@ def calculate_foldings(i_max, c, l, e):
         if any([value < 0 for value in [c[i+1], l[i+1]]]):
             return i
         e[i+1] = 2*e[i]
+    return 0
 
 i_max = 50
 
-# Cálculo para A4
+## Cálculo para A4
 c = np.zeros(i_max)
 l = np.zeros(i_max)
 e = np.zeros(i_max)
@@ -49,15 +50,66 @@ plt.plot(e[:result+2], label='Espessura')
 plt.axvline(x=result, color='r', linestyle='--', label='Iteração final')
 plt.legend()
 
+# plt.show()
+
+## Cálculo para encontrar tamanho do papel que chega na lua 
+# Vetores
+columns = ['c', 'l', 'e', 'i']
+
+q = 2
+c0 = 0.297*1000
+l0 = 0.210*1000
+e0 = 0.0001
+n_termos = 45
+
+pg_c = np.geomspace(c0, c0 * q**(n_termos-1), n_termos)
+pg_l = np.geomspace(l0, l0 * q**(n_termos-1), n_termos)
+
+c = np.zeros([i_max, n_termos])
+c[0,:] = pg_c
+l = np.zeros([i_max, n_termos])
+l[0,:] = pg_l
+
+e = np.zeros(i_max)
+e[0] = e0
+
+threads_results = []
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    for m, comprimento in enumerate(c[0,:]):
+            threads_results.append(executor.submit(dimension_sweep, m, m, i_max, c, l, e))
+    executor.shutdown()
+    concurrent.futures.wait(threads_results)
+
+final_results = [r.result() for r in threads_results]
+results = pd.DataFrame([r.result() for r in threads_results], columns=columns)
+
+distancia_terra_lua_em_metros = 384400000
+
+# Plotagem
+fig, ax1 = plt.subplots()
+
+ax1.plot(results.index, results['e'], label='Espessura', color='r')
+ax1.set_xlabel('Expoente do 2 multiplicador')
+ax1.set_ylabel('Espessura')
+ax1.tick_params(axis='y')
+ax1.axhline(y=distancia_terra_lua_em_metros, color='r', linestyle='--', label='Distância Terra-Lua')
+ax1.legend()
+
+ax2 = ax1.twinx()
+ax2.plot(results.index, results['i'], color='b', label='Número de dobras')
+ax2.set_ylabel('Número de dobras')
+ax2.tick_params(axis='y')
+ax2.legend()
+
+fig.tight_layout()
+plt.grid(True)
 plt.show()
 
-pdb.set_trace()
-
+## Cálculo para varredura de dimensões
 step = 20
 max_size = 10000
 c_max = max_size + step
 l_max = max_size + step
-e0 = 0.1
 
 # Vetores
 c = np.zeros([i_max, round(c_max/step)])
@@ -66,9 +118,6 @@ l = np.zeros([i_max, round(c_max/step)])
 l[0,:] = np.arange(0, l_max, step)
 e = np.zeros(i_max)
 e[0] = e0
-
-columns = ['c', 'l', 'e', 'i']
-
 
 
 threads_results = []
@@ -92,6 +141,6 @@ Z = results.pivot(index='c', columns='l', values='i').values
 ax.plot_surface(X, Y, Z, cmap='viridis')
 ax.set_xlabel('Comprimento')
 ax.set_ylabel('Largura')
-ax.set_zlabel('Iterações')
+ax.set_zlabel('Número de dobras')
 
 plt.show()
