@@ -42,4 +42,16 @@ for m, comprimento in enumerate(c[0,:]):
             e[i+1] = 2*e[i]
 
 # Plotagem
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
 
+X, Y = np.meshgrid(results['c'].unique(), results['l'].unique())
+Z = results.pivot(index='c', columns='l', values='i').values
+
+
+ax.plot_surface(X, Y, Z, cmap='viridis')
+ax.set_xlabel('Comprimento')
+ax.set_ylabel('Largura')
+ax.set_zlabel('Iterações')
+
+plt.show()
