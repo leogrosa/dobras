@@ -1,40 +1,45 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import pdb
+from mpl_toolkits.mplot3d import Axes3D
 
-n_max = 100
+i_max = 50
+step = 100
+max_size = 500
+c_max = max_size + step
+l_max = max_size + step
+e0 = 0.1
 
-# Vetores de dimensões
-c = np.zeros(n_max)
-l = np.zeros(n_max)
-e = np.zeros(n_max)
+# Vetores
+c = np.zeros([i_max, round(c_max/step)])
+c[0,:] = np.arange(0, c_max, step)
+l = np.zeros([i_max, round(c_max/step)])
+l[0,:] = np.arange(0, l_max, step)
+e = np.zeros(i_max)
+e[0] = e0
 
-# Condições iniciais
-c[0] = 297
-l[0] = 210
-e[0] = 0.1
-
-# Sempre dobrando do maior lado disponível
+columns = ['c', 'l', 'e', 'i']
+results = pd.DataFrame(columns=columns)
 
 # Processo iterativo
-for i in range(n_max-1):
-    if c[i] > l[i]:
-        c[i+1] = c[i]/2 - e[i]
-        l[i+1] = l[i]
-    else:
-        c[i+1] = c[i]
-        l[i+1] = l[i]/2 - e[i]
-    if any([value < 0 for value in [c[i+1], l[i+1]]]):
-        break
-    e[i+1] = 2*e[i]
+for m, comprimento in enumerate(c[0,:]):
+    for n, largura in enumerate(l[0,:]):
+        for i in range(i_max-1):
+            if c[i,m] > l[i,n]:
+                c[i+1,m] = c[i,m]/2 - e[i]
+                l[i+1,n] = l[i,n]
+            else:
+                c[i+1,m] = c[i,m]
+                l[i+1,n] = l[i,n]/2 - e[i]
+            if any([value < 0 for value in [c[i+1,m], l[i+1,n]]]):
+                current_results = pd.DataFrame([comprimento, largura, e[i], i]).T 
+                current_results.columns = columns
+                results = pd.concat([results, \
+                                         current_results],\
+                                         ignore_index=True)
+                break
+            e[i+1] = 2*e[i]
 
 # Plotagem
-plt.figure()
-plt.plot(c, label='Comprimento')
-plt.plot(l, label='Largura')
-plt.legend()
-    
-plt.figure()
-plt.plot(e, label='Espessura')
-plt.legend()
-plt.show()
 
