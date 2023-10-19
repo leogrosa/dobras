@@ -28,10 +28,13 @@ for i in range(n_max-1):
     e[i+1] = 2*e[i]
 
 # Plotagem
+plt.figure()
 plt.plot(c, label='Comprimento')
 plt.plot(l, label='Largura')
+plt.legend()
+    
+plt.figure()
 plt.plot(e, label='Espessura')
 plt.legend()
 plt.show()
-    
 
