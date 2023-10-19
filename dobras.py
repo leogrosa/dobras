@@ -5,23 +5,6 @@ import pdb
 from mpl_toolkits.mplot3d import Axes3D
 import concurrent.futures
 
-i_max = 50
-step = 20
-max_size = 10000
-c_max = max_size + step
-l_max = max_size + step
-e0 = 0.1
-
-# Vetores
-c = np.zeros([i_max, round(c_max/step)])
-c[0,:] = np.arange(0, c_max, step)
-l = np.zeros([i_max, round(c_max/step)])
-l[0,:] = np.arange(0, l_max, step)
-e = np.zeros(i_max)
-e[0] = e0
-
-columns = ['c', 'l', 'e', 'i']
-
 def dimension_sweep(m, n, i_max, c, l, espessura):
     e = espessura.copy()
     i = calculate_foldings(i_max, c[:,m], l[:,n], e)
@@ -39,6 +22,54 @@ def calculate_foldings(i_max, c, l, e):
         if any([value < 0 for value in [c[i+1], l[i+1]]]):
             return i
         e[i+1] = 2*e[i]
+
+i_max = 50
+
+# Cálculo para A4
+c = np.zeros(i_max)
+l = np.zeros(i_max)
+e = np.zeros(i_max)
+c[0] = 297
+l[0] = 210
+e[0] = 0.1
+
+result = calculate_foldings(i_max, c, l, e)
+
+# Plot A4
+plt.figure()
+plt.grid(True)
+plt.plot(c[:result+2], label='Comprimento')
+plt.plot(l[:result+2], label='Largura')
+plt.axvline(x=result, color='r', linestyle='--', label='Iteração final')
+plt.legend()
+
+plt.figure()
+plt.grid(True)
+plt.plot(e[:result+2], label='Espessura')
+plt.axvline(x=result, color='r', linestyle='--', label='Iteração final')
+plt.legend()
+
+plt.show()
+
+pdb.set_trace()
+
+step = 20
+max_size = 10000
+c_max = max_size + step
+l_max = max_size + step
+e0 = 0.1
+
+# Vetores
+c = np.zeros([i_max, round(c_max/step)])
+c[0,:] = np.arange(0, c_max, step)
+l = np.zeros([i_max, round(c_max/step)])
+l[0,:] = np.arange(0, l_max, step)
+e = np.zeros(i_max)
+e[0] = e0
+
+columns = ['c', 'l', 'e', 'i']
+
+
 
 threads_results = []
 with concurrent.futures.ThreadPoolExecutor() as executor:
