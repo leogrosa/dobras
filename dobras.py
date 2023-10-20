@@ -41,6 +41,7 @@ plt.figure()
 plt.grid(True)
 plt.plot(c[:result+2], label='Comprimento')
 plt.plot(l[:result+2], label='Largura')
+plt.plot(e[:result+2], label='Espessura')
 plt.axvline(x=result, color='r', linestyle='--', label='Iteração final')
 plt.legend()
 
@@ -56,11 +57,11 @@ plt.legend()
 # Vetores
 columns = ['c', 'l', 'e', 'i']
 
-q = 2
-c0 = 0.297*1000
-l0 = 0.210*1000
+q = 1.075
+c0 = 0.297*(2**42)
+l0 = 0.210*(2**42)
 e0 = 0.0001
-n_termos = 45
+n_termos = 100
 
 pg_c = np.geomspace(c0, c0 * q**(n_termos-1), n_termos)
 pg_l = np.geomspace(l0, l0 * q**(n_termos-1), n_termos)
@@ -89,7 +90,7 @@ distancia_terra_lua_em_metros = 384400000
 fig, ax1 = plt.subplots()
 
 ax1.plot(results.index, results['e'], label='Espessura', color='r')
-ax1.set_xlabel('Expoente do 2 multiplicador')
+ax1.set_xlabel(f'Expoente da razão {q}: 2^42 * {q}^x')
 ax1.set_ylabel('Espessura')
 ax1.tick_params(axis='y')
 ax1.axhline(y=distancia_terra_lua_em_metros, color='r', linestyle='--', label='Distância Terra-Lua')
@@ -103,7 +104,7 @@ ax2.legend()
 
 fig.tight_layout()
 plt.grid(True)
-plt.show()
+# plt.show()
 
 ## Cálculo para varredura de dimensões
 step = 20
